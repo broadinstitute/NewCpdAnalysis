@@ -423,11 +423,18 @@ task cellprofiler_pipeline_task {
         fi
     fi
 
-
+    python3 -m pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu "torch==2.4.1"
     python3 -m pip install --no-cache-dir "cellpose==2.3.2"
-    python3 -c "import cellpose, sys; print('Cellpose', cellpose.__version__)" || { echo 'Cellpose import failed' >&2; exit 1; }
 
-
+    python3 - <<'PY'
+    try:
+        import importlib.metadata as m
+        print("Cellpose", m.version("cellpose"))
+    except Exception as e:
+        import sys
+        print("ERROR: Cellpose not importable:", e, file=sys.stderr)
+        sys.exit(1)
+    PY
     
 
 
