@@ -1,2 +1,1 @@
-# CytominingSqliteMaxColUp
-CytominingSqliteMaxColUp
+# Enable cellpose
