@@ -411,7 +411,9 @@ task cellprofiler_pipeline_task {
     mkdir output
 
 
-    PLUG_URL="https://raw.githubusercontent.com/CellProfiler/CellProfiler-plugins/master/active_plugins/runcellpose.py"
+
+
+    PLUG_URL="https://raw.githubusercontent.com/broadinstitute/OPS_NewAnalysis/refs/heads/main/cp_plugin/runcellpose.py"
     PLUG_DIR="$(pwd)/cp_plugins"
     PLUG_PATH="${PLUG_DIR}/runcellpose.py"
 
@@ -422,6 +424,7 @@ task cellprofiler_pipeline_task {
             exit 1
         fi
     fi
+    echo "runcellpose installed"
 
     python3 -m pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu "torch==2.4.1"
     python3 -m pip install --no-cache-dir "cellpose==2.3.2"
@@ -437,8 +440,44 @@ task cellprofiler_pipeline_task {
     PY
     
 
+   
+    PLUG_URL="https://raw.githubusercontent.com/broadinstitute/OPS_NewAnalysis/refs/heads/main/cp_plugin/callbarcodes.py"
+    PLUG_PATH="${PLUG_DIR}/callbarcodes.py"
+
+    if ! curl -L --fail -o "$PLUG_PATH" "$PLUG_URL" 2>/dev/null; then
+        if ! wget -qO "$PLUG_PATH" "$PLUG_URL" 2>/dev/null; then
+            echo "ERROR: Could not download callbarcodes.py from $PLUG_URL" >&2
+            exit 1
+        fi
+    fi
+    echo "callBarcodes installed"
 
 
+
+    PLUG_URL="https://raw.githubusercontent.com/broadinstitute/OPS_NewAnalysis/refs/heads/main/cp_plugin/callbarcodes2.py"
+    PLUG_PATH="${PLUG_DIR}/callbarcodes2.py"
+
+    if ! curl -L --fail -o "$PLUG_PATH" "$PLUG_URL" 2>/dev/null; then
+        if ! wget -qO "$PLUG_PATH" "$PLUG_URL" 2>/dev/null; then
+            echo "ERROR: Could not download callbarcodes2.py from $PLUG_URL" >&2
+            exit 1
+        fi
+    fi
+    echo "callBarcodes2 installed"
+
+
+
+    
+    PLUG_URL="https://raw.githubusercontent.com/broadinstitute/OPS_NewAnalysis/refs/heads/main/cp_plugin/compensatecolors.py"
+    PLUG_PATH="${PLUG_DIR}/compensatecolors.py"
+
+    if ! curl -L --fail -o "$PLUG_PATH" "$PLUG_URL" 2>/dev/null; then
+        if ! wget -qO "$PLUG_PATH" "$PLUG_URL" 2>/dev/null; then
+            echo "ERROR: Could not download compensatecolors.py from $PLUG_URL" >&2
+            exit 1
+        fi
+    fi
+    echo "compensatecolors installed"
 
 
 
