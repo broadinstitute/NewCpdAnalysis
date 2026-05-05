@@ -487,7 +487,28 @@ task cellprofiler_pipeline_task {
 
 
     echo "Running cellprofiler ==================="
-    # run cellprofiler pipeline
+
+    (
+      while true; do
+        timestamp=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+
+        if [ -f /sys/fs/cgroup/memory.current ]; then
+          mem_bytes=$(cat /sys/fs/cgroup/memory.current)
+        elif [ -f /sys/fs/cgroup/memory/memory.usage_in_bytes ]; then
+          mem_bytes=$(cat /sys/fs/cgroup/memory/memory.usage_in_bytes)
+        else
+          mem_bytes=$(awk '/MemTotal/ {total=$2} /MemAvailable/ {avail=$2} END {print (total-avail)*1024}' /proc/meminfo)
+        fi
+
+        mem_mb=$((mem_bytes / 1024 / 1024))
+        echo "${timestamp} WDL_MEMORY_MB=${mem_mb}" >&2
+        sleep 60
+      done
+    ) &
+
+    MEM_MONITOR_PID=$!
+    trap "kill ${MEM_MONITOR_PID} 2>/dev/null || true" EXIT
+
     cellprofiler --run --run-headless \
       --plugins-directory "${PLUG_DIR}" \
       --data-file=~{load_data_csv} \
@@ -495,8 +516,11 @@ task cellprofiler_pipeline_task {
       -o output \
       -i "$csv_dir"
 
+    CP_EXIT_CODE=$?
 
-    # make the outputs into a tarball (hack to delocalize arbitrary outputs)
+    kill ${MEM_MONITOR_PID} 2>/dev/null || true
+
+    # make the outputs into a tarball
     echo "Directory containing output files =============================="
     cd output
     ls -lah .
@@ -504,6 +528,11 @@ task cellprofiler_pipeline_task {
     cd ..
     echo "Directory containing output tarball ============================"
     ls -lah
+
+    exit ${CP_EXIT_CODE}
+
+
+
 
   >>>
 
